@@ -21,23 +21,23 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
             return height;
         }
 
-        boolean isBalance() {
-            int lHeight = (left == null) ? 0 : left.getHeight();
-            int rHeight = (right == null) ? 0 : right.getHeight();
-            int delta = Math.abs(lHeight - rHeight);
-            return delta == 1 || delta == 0;
+        boolean checkBalance() {
+            int leftHeight = (left == null) ? 0 : left.getHeight();
+            int rightHeight = (right == null) ? 0 : right.getHeight();
+            int difference = Math.abs(leftHeight - rightHeight);
+            return difference == 1 || difference == 0;
         }
 
         int getBalance() {
-            int lHeight = (left == null) ? 0 : left.getHeight();
-            int rHeight = (right == null) ? 0 : right.getHeight();
-            return rHeight - lHeight;
+            int leftHeight = (left == null) ? 0 : left.getHeight();
+            int rightHeight = (right == null) ? 0 : right.getHeight();
+            return rightHeight - leftHeight;
         }
 
-        void isHeight() {
-            int lHeight = (left == null) ? 0 : left.getHeight();
-            int rHeight = (right == null) ? 0 : right.getHeight();
-            this.height = (lHeight > rHeight ? lHeight : rHeight) + 1;
+        void fixHeight() {
+            int leftHeight = (left == null) ? 0 : left.getHeight();
+            int rightHeight = (right == null) ? 0 : right.getHeight();
+            this.height = (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
         }
     }
 
@@ -51,8 +51,8 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
             size++;
             return true;
         }
-        Node<T> near = findNear(t);
-        if (near.value == t) {
+        Node<T> nearest = findNearest(t);
+        if (nearest.value == t) {
             return false;
         }
         root = add(root, t);
@@ -64,34 +64,34 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
         if (node == null) {
             return new Node<>(t);
         }
-        int comparation = t.compareTo(node.value);
-        if (comparation == 0) {
+        int comparison = t.compareTo(node.value);
+        if (comparison == 0) {
             return node;
         }
-        else if (comparation < 0) {
+        else if (comparison < 0) {
             node.left = add(node.left, t);
         }
         else {
             node.right = add(node.right, t);
         }
-        return balance(node);
+        return makeBalancing(node);
     }
 
     @Override
     public boolean remove(Object o) {
         @SuppressWarnings("unchecked")
         T t = (T) o;
-        Node<T> node = node(t);
+        Node<T> node = findNode(t);
         if (node == null) return false;
-        Node<T> parent = parent(node);
+        Node<T> parent = findParent(node);
         if (parent == null) {
             root = delete(node);
             size--;
             return true;
         }
-        int comparation = node.value.compareTo(parent.value);
-        assert comparation != 0;
-        if (comparation < 0) {
+        int comparison = node.value.compareTo(parent.value);
+        assert comparison != 0;
+        if (comparison < 0) {
             parent.left = delete(node);
         }
         else {
@@ -101,111 +101,111 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
         return true;
     }
 
-    private Node<T> findNear(T value) {
+    private Node<T> findNearest(T value) {
         if (root == null) return null;
-        return findNear(root, value);
+        return findNearest(root, value);
     }
 
-    private Node<T> findNear(Node<T> start, T value) {
-        int comparation = value.compareTo(start.value);
-        if (comparation == 0) {
+    private Node<T> findNearest(Node<T> start, T value) {
+        int comparison = value.compareTo(start.value);
+        if (comparison == 0) {
             return start;
         }
-        else if (comparation < 0) {
+        else if (comparison < 0) {
             if (start.left == null) return start;
-            return findNear(start.left, value);
+            return findNearest(start.left, value);
         }
         else {
             if (start.right == null) return start;
-            return findNear(start.right, value);
+            return findNearest(start.right, value);
         }
     }
 
-    private Node<T> parent(Node<T> child) {
+    private Node<T> findParent(Node<T> child) {
         if (root == null || child == null) return null;
-        return parent(root, child.value);
+        return findParent(root, child.value);
     }
 
-    private Node<T> parent(Node<T> start, T value) {
-        int comparation = value.compareTo(start.value);
-        if (comparation == 0) {
+    private Node<T> findParent(Node<T> start, T value) {
+        int comparison = value.compareTo(start.value);
+        if (comparison == 0) {
             return null;
         }
-        else if (comparation < 0) {
+        else if (comparison < 0) {
             if (start.left.value == value) return start;
-            return parent(start.left, value);
+            return findParent(start.left, value);
         }
         else {
             if(start.right.value == value) return start;
-            return parent(start.right, value);
+            return findParent(start.right, value);
         }
     }
 
-    private Node<T> node(T value) {
+    private Node<T> findNode(T value) {
         if (root == null) return null;
-        return node(root, value);
+        return findNode(root, value);
     }
 
-    private Node<T> node(Node<T> start, T value) {
-        int comparation = value.compareTo(start.value);
-        if (comparation == 0) {
+    private Node<T> findNode(Node<T> start, T value) {
+        int comparison = value.compareTo(start.value);
+        if (comparison == 0) {
             return start;
         }
-        else if (comparation < 0) {
+        else if (comparison < 0) {
             if (start.left == null) return null;
-            return node(start.left, value);
+            return findNode(start.left, value);
         }
         else {
             if(start.right == null) return null;
-            return node(start.right, value);
+            return findNode(start.right, value);
         }
     }
 
-    private Node<T> rightTurn(Node<T> node) {
+    private Node<T> makeRightTurn(Node<T> node) {
         Node<T> turnedNode = node.left;
         node.left = turnedNode.right;
         turnedNode.right = node;
-        node.isHeight();
-        turnedNode.isHeight();
+        node.fixHeight();
+        turnedNode.fixHeight();
         return turnedNode;
     }
 
-    private Node<T> leftTurn(Node<T> node) {
+    private Node<T> makeLeftTurn(Node<T> node) {
         Node<T> turnedNode = node.right;
         node.right = turnedNode.left;
         turnedNode.left = node;
-        node.isHeight();
-        turnedNode.isHeight();
+        node.fixHeight();
+        turnedNode.fixHeight();
         return turnedNode;
     }
 
-    private Node<T> balance(Node<T> node) {
-        node.isHeight();
-        if(node.isBalance()) {
+    private Node<T> makeBalancing(Node<T> node) {
+        node.fixHeight();
+        if(node.checkBalance()) {
             return node;
         }
         int balance = node.getBalance();
         assert balance < 2 || balance > -2;
         if(balance == 2) {
             if(node.right.getBalance() < 0) {
-                node.right = rightTurn(node.right);
+                node.right = makeRightTurn(node.right);
             }
-            return leftTurn(node);
+            return makeLeftTurn(node);
         }
         else {
             if(node.left.getBalance() > 0) {
-                node.left = leftTurn(node.left);
+                node.left = makeLeftTurn(node.left);
             }
-            return rightTurn(node);
+            return makeRightTurn(node);
         }
     }
 
-    public boolean isBalance() {
-        return root.isBalance();
+    public boolean checkBalance() {
+        return root.checkBalance();
     }
 
     private Node<T> delete(Node<T> node) {
-        assert node.isBalance();
+        assert node.checkBalance();
         if (node.right == null) {
             return node.left;
         }
@@ -213,54 +213,54 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
             if (node.left == null) {
                 return node.right;
             }
-            Node<T> minLeft = node.right;
-            Node<T> minLeftParent = node;
-            while (minLeft.left != null) {
-                minLeftParent = minLeft;
-                minLeft = minLeft.left;
+            Node<T> minimumLeft = node.right;
+            Node<T> minimumLeftParent = node;
+            while (minimumLeft.left != null) {
+                minimumLeftParent = minimumLeft;
+                minimumLeft = minimumLeft.left;
             }
-            minLeft.left = node.left;
-            if (minLeftParent != node) {
-                minLeftParent.left = minLeft.right;
-                minLeft.right = deleteMin(node.right);
+            minimumLeft.left = node.left;
+            if (minimumLeftParent != node) {
+                minimumLeftParent.left = minimumLeft.right;
+                minimumLeft.right = deleteMinimum(node.right);
             }
-            return balance(minLeft);
+            return makeBalancing(minimumLeft);
         }
     }
 
-    private Node<T> deleteMin(Node<T> node) {
+    private Node<T> deleteMinimum(Node<T> node) {
         if (node.left == null) {
             return node;
         }
-        node.left = deleteMin(node.left);
-        return balance(node);
+        node.left = deleteMinimum(node.left);
+        return makeBalancing(node);
     }
 
-    public boolean isInvariant() {
+    public boolean checkInvariant() {
         if (root == null) {
             return true;
         }
-        return isInvariant(root);
+        return checkInvariant(root);
     }
 
-    private boolean isInvariant(Node<T> node) {
+    private boolean checkInvariant(Node<T> node) {
         Node<T> left = node.left;
-        if (left != null && (left.value.compareTo(node.value) >= 0 || !isInvariant(left))) return false;
+        if (left != null && (left.value.compareTo(node.value) >= 0 || !checkInvariant(left))) return false;
         Node<T> right = node.right;
-        return right == null || right.value.compareTo(node.value) > 0 && isInvariant(right);
+        return right == null || right.value.compareTo(node.value) > 0 && checkInvariant(right);
     }
 
     @Override
     public boolean contains(Object o) {
         @SuppressWarnings("unchecked")
         T t = (T) o;
-        Node<T> near = findNear(t);
-        return near != null && t.compareTo(near.value) == 0;
+        Node<T> nearest = findNearest(t);
+        return nearest != null && t.compareTo(nearest.value) == 0;
     }
 
     @Override
     public Iterator<T> iterator() {
-        return new AvlIterator();
+        return new AvlTreeIterator();
     }
 
     @Override
@@ -268,11 +268,11 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
         return size;
     }
 
-    public class AvlIterator implements Iterator<T> {
+    public class AvlTreeIterator implements Iterator<T> {
         private Node<T> current;
         private Stack<Node<T>> stack = new Stack();
 
-        private AvlIterator() {
+        private AvlTreeIterator() {
             Node<T> node = root;
             while (node != null) {
                 stack.push(node);

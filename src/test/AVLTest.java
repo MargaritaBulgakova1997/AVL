@@ -2,6 +2,7 @@ package test;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import avl.AVL;
+import java.util.Iterator;
 
 public class AVLTest {
 
@@ -15,12 +16,12 @@ public class AVLTest {
         tree.add(12);
         tree.add(4);
         tree.add(8);
-        assertTrue(tree.isBalance());
+        assertTrue(tree.checkBalance());
         assertTrue(tree.contains(8));
         assertEquals(7, tree.size());
         tree.add(15);
         assertEquals(8, tree.size());
-        assertTrue(tree.isInvariant());
+        assertTrue(tree.checkInvariant());
 
     }
 
@@ -38,7 +39,7 @@ public class AVLTest {
         tree.remove(10);
         assertFalse(tree.contains(10));
         assertEquals(5, tree.size());
-        assertTrue(tree.isBalance());
+        assertTrue(tree.checkBalance());
 
     }
 
@@ -56,31 +57,28 @@ public class AVLTest {
         assertFalse(tree.contains(4));
     }
     @Test
-    public void testForEach(){
-        AVL<Integer> tree = new AVL<Integer>();
-        assertTrue(tree.isEmpty());
-        tree.add(5);
-        tree.add(9);
+    public void iteratorTest() {
+        AVL<Integer> tree = new AVL<>();
+        tree.add(10);
         tree.add(3);
-        int[] array = new int[tree.size()];
-        int[ ] array2 = {3, 5, 9};
-        int[ ] array3 = {3, 5};
-        int j = 0;
-        for(int i: tree) {
-            array[j] = i;
-            j++;
-        }
-        assertFalse(tree.isEmpty());
-        assertArrayEquals(array, array2);
-        tree.remove(9);
-        assertFalse(tree.contains(9));
-        j = 0;
-        array = new int[tree.size()];
-        for(int i: tree) {
-            array[j] = i;
-            j++;
-        }
-        assertArrayEquals(array, array3);
+        tree.add(15);
+        tree.add(5);
+        tree.add(7);
+        tree.add(2);
+        Iterator<Integer> iterator = tree.iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals(2, iterator.next().intValue());
+        assertTrue(iterator.hasNext());
+        assertEquals(3, iterator.next().intValue());
+        assertTrue(iterator.hasNext());
+        assertEquals(5, iterator.next().intValue());
+        assertTrue(iterator.hasNext());
+        assertEquals(7, iterator.next().intValue());
+        assertTrue(iterator.hasNext());
+        assertEquals(10, iterator.next().intValue());
+        assertTrue(iterator.hasNext());
+        assertEquals(15, iterator.next().intValue());
+        assertFalse(iterator.hasNext());
     }
 
 
