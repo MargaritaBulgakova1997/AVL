@@ -79,7 +79,6 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
 
     @Override
     public boolean remove(Object o) {
-        @SuppressWarnings("unchecked")
         T t = (T) o;
         Node<T> node = findNode(t);
         if (node == null) return false;
@@ -279,16 +278,54 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
                 current = node;
                 node = node.left;
             }
+            stack.push(null);
         }
 
         private Node<T> findNext() {
-            Node<T> node = current.right;
+            Node<T> node= current==null?null:current.left;
             while (node != null) {
                 stack.push(node);
-                node = node.left;
+                //node = node.left;
+
+                if (node.left!=null)
+                    node=node.left;
+                else node=node.right;
             }
+
+
+
             return stack.pop();
         }
+
+        private Node<T> findNewNext() {
+            Node<T> node= stack.pop();
+
+            if (node==null) {   //мы в самом первом узле
+                return stack.peek();
+            }
+            else {
+                current = stack.size()!=0?stack.peek():null;
+
+                if ((current==null) || (node==current.left)) { //current==null - мы пришли в корень, надо проверить справа
+                    if (node.right==null) {                     //current==left - мы пришли в корень из лева, надо проверить справа
+                        return current;
+                    }
+
+                    //stack.push(node);
+                    node = node.right;
+
+                    while (node != null) {
+                        stack.push(node);
+                        node = node.left;
+                    }
+
+                    return stack.peek();
+                }
+
+                return stack.peek();
+            }
+        }
+
 
         @Override
         public boolean hasNext() {
@@ -297,7 +334,7 @@ public class AVL<T extends Comparable<T>> extends AbstractSet<T> {
 
         @Override
         public T next() {
-            current = findNext();
+            current = findNewNext();
             if (current == null) throw new NoSuchElementException();
             return current.value;
         }

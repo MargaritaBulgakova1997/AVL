@@ -81,6 +81,38 @@ public class AVLTest {
         assertFalse(iterator.hasNext());
     }
 
+    @Test
+ public void testForEach(){
+        AVL<Integer> tree = new AVL<Integer>();
+        assertTrue(tree.isEmpty());
+        tree.add(5);
+        tree.add(9);
+        tree.add(3);
+        tree.add(4);
+        int[] array = new int[tree.size()];
+        int[ ] array2 = {3,4, 5, 9};
+        int[ ] array3 = {3, 4, 5};
+        int j = 0;
+        for(int i: tree) {
+            array[j] = i;
+            j++;
+
+            if (j>=tree.size()) break;
+        }
+        assertFalse(tree.isEmpty());
+        assertArrayEquals(array, array2);
+        tree.remove(9);
+        assertFalse(tree.contains(9));
+        j = 0;
+        array = new int[tree.size()];
+        for(int i: tree) {
+            array[j] = i;
+            j++;
+            if (j>=(tree.size())) break;
+        }
+        assertArrayEquals(array, array3);
+    }
+
 
 
 }
